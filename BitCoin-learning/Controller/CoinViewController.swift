@@ -18,11 +18,28 @@ class CoinViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        coinManager.delegate = self
         picker.dataSource = self
         picker.delegate = self 
     }
-
 }
+
+// MARK: - CoinManagerDelegate
+
+extension CoinViewController: CoinManagerDelegate {
+    func didUpdateCurrency(rate: Double, currencyName: String) {
+        DispatchQueue.main.async {
+            self.currencyLabel.text = currencyName
+            self.currencyValue.text = String(format: "%.4f", rate)
+        }
+    }
+    
+    func didFailWithError(_ error: Error) {
+        print(error)
+    }
+}
+
+// MARK: - UIPickerView DataSource & Delegate
 
 extension CoinViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -39,10 +56,8 @@ extension CoinViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let currencyName = coinManager.currencyArray[row]
-        coinManager.fetchData(currencyName)
-    }
-    
-    
+        coinManager.getCoinPrice(currencyName)
+    } 
 }
 
 
